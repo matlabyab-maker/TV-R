@@ -222,7 +222,7 @@ class MainActivity : AppCompatActivity() {
                     val streamUrl = line
                     val channelName = pendingChannelName
                     val channelButton = Button(this).apply {
-                        text = channelName
+                        this.text = channelName
                         isAllCaps = false
                         setOnClickListener {
                             urlInput.setText(streamUrl)
