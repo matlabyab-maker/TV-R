@@ -204,27 +204,41 @@ class MainActivity : AppCompatActivity() {
             val text = contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
                 ?: throw IllegalStateException("فایل قابل خواندن نیست")
             playlistBox.removeAllViews()
-            var title = "شبکه بدون نام"
+            var pendingChannelName = "شبکه بدون نام"
             var count = 0
-            text.lineSequence().forEach { raw ->
-                val line = raw.trim()
-                if (line.startsWith("#EXTINF", true)) {
-                    title = line.substringAfter(',', "شبکه بدون نام").trim().ifBlank { "شبکه بدون نام" }
-                } else if (line.isNotBlank() && !line.startsWith("#") &&
-                    (line.startsWith("http://") || line.startsWith("https://") || line.startsWith("rtsp://"))) {
-                    val stream = line
-                    val channel = title
-                    playlistBox.addView(Button(this).apply {
-                        text = channel
+            for (rawLine in text.lineSequence()) {
+                val line = rawLine.trim()
+                if (line.startsWith("#EXTINF", ignoreCase = true)) {
+                    pendingChannelName = line.substringAfter(',', "شبکه بدون نام")
+                        .trim()
+                        .ifBlank { "شبکه بدون نام" }
+                } else if (
+                    line.isNotBlank() &&
+                    !line.startsWith("#") &&
+                    (line.startsWith("http://", ignoreCase = true) ||
+                     line.startsWith("https://", ignoreCase = true) ||
+                     line.startsWith("rtsp://", ignoreCase = true))
+                ) {
+                    val streamUrl = line
+                    val channelName = pendingChannelName
+                    val channelButton = Button(this).apply {
+                        text = channelName
                         isAllCaps = false
                         setOnClickListener {
-                            urlInput.setText(stream)
+                            urlInput.setText(streamUrl)
                             showMode("direct")
-                            playStream(stream)
+                            playStream(streamUrl)
                         }
-                    }, LinearLayout.LayoutParams(-1, -2))
-                    count++
-                    title = "شبکه بدون نام"
+                    }
+                    playlistBox.addView(
+                        channelButton,
+                        LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        )
+                    )
+                    count += 1
+                    pendingChannelName = "شبکه بدون نام"
                 }
             }
             showMode("list")
