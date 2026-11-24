@@ -1,6 +1,5 @@
 package com.tvb.player
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.Button
@@ -39,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         }
         urlInput = EditText(this).apply {
             hint = "آدرس پخش زنده یا لینک M3U8"
-            singleLine = true
+            setSingleLine(true)
             setTextColor(0xFFFFFFFF.toInt())
             setHintTextColor(0xFFB0BEC5.toInt())
             setSelectAllOnFocus(false)
